@@ -41,7 +41,6 @@ class randomWalk(torch.nn.Module):
             row, col = edge_index
             adj = SparseTensor(row=row, col=col, sparse_sizes=sizes)
             adj = adj.to('cpu')
-            #每半个元路径有一个稀疏矩阵，用逗号隔开
             adj_dict[keys] = adj
 
         assert walk_length + 1 >= context_size
@@ -61,15 +60,12 @@ class randomWalk(torch.nn.Module):
 
         types = set([x[0] for x in metapath]) | set([x[-1] for x in metapath])
         types = sorted(list(types))
-        #types为元路径中的所有节点类型
         count = 0
         self.start, self.end = {}, {}
         for key in types:
-            #计算每一种节点类型的开始与结束位置（相对），都是从0开始
             self.start[key] = count
             count += num_nodes_dict[key]
             self.end[key] = count
-        #metapath[0][0]是元路径的开始节点类型
         #offset = 0
         offset = [self.start[metapath[0][0]]]
         offset += [self.start[keys[-1]] for keys in metapath
@@ -91,8 +87,6 @@ class randomWalk(torch.nn.Module):
         self.start_f_supplyCompany = self.start_e_staff + self.dataset['e_staff'].num_nodes
         self.start_g_sector = self.start_f_supplyCompany + self.dataset['f_supplyCompany'].num_nodes
         self.start_h_area = self.start_g_sector + self.dataset['g_sector'].num_nodes
-        # print("节点数量节点数量节点数量节点数量节点数量节点数量节点数量节点数量节点数量节点数量")
-        # print(self.start_d_holdCompany,self.start_e_staff,self.start_f_supplyCompany,self.start_g_sector,self.start_h_area)
 
 
     def loader(self, **kwargs):
@@ -113,12 +107,10 @@ class randomWalk(torch.nn.Module):
         rws = [batch]
         #
         for i in range(self.walk_length):
-            #len(self.metapath) = 半个元路径的数量
             keys = self.metapath[i % len(self.metapath)]
             adj = self.adj_dict[keys]
             batch = sample(adj, batch, num_neighbors=1,
                            dummy_idx=self.dummy_idx).view(-1)
-            #在邻接矩阵中采样
             rws.append(batch)
 
         rw = torch.stack(rws, dim=-1)
@@ -156,7 +148,7 @@ class randomWalk(torch.nn.Module):
         else:
             for i in range(100):
                 print("error metapath type")
-                print("the error at the file randomWalk,元路径变更，请更改代码")
+
 
         return walks_return
 
@@ -204,7 +196,6 @@ class randomWalk(torch.nn.Module):
         else:
             for i in range(100):
                 print("error metapath type")
-                print("the error at the file randomWalk,元路径变更，请更改代码")
 
         return walks_return
     def _sample(self, batch: List[int]) -> Tuple[Tensor, Tensor]:
@@ -217,10 +208,10 @@ class randomWalk(torch.nn.Module):
 def sample(src: SparseTensor, subset: Tensor, num_neighbors: int,
            dummy_idx: int) -> Tensor:
 
-    mask = subset < dummy_idx                                                    #生成非孤立的节点掩码
+    mask = subset < dummy_idx                                                    
 
-    rowcount = torch.zeros_like(subset)                                          #生成128维的0张量
-    rowcount[mask] = src.storage.rowcount()[subset[mask]]                        #找到非孤立的节点（我的图的孤立节点似乎很多（好像是根据元路径来的））
+    rowcount = torch.zeros_like(subset)                                       
+    rowcount[mask] = src.storage.rowcount()[subset[mask]]                  
     mask = mask & (rowcount > 0)
     offset = torch.zeros_like(subset)
     offset[mask] = src.storage.rowptr()[subset[mask]]
