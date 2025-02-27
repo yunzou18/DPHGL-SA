@@ -49,7 +49,6 @@ for num in random_modules:
 
 #
 # # step 2
-# # 转换一下数据集以放进HAN训练
 # # 用于HAN训练的METAPATH
 # metapaths = [[('a_manage', 'd_holdCompany'), ('d_holdCompany', 'a_manage')],
 #              [('a_manage', 'e_staff'), ('e_staff', 'a_manage')],
@@ -64,7 +63,7 @@ metapaths = [[('abc_stock', 'd_holdCompany'), ('d_holdCompany', 'abc_stock')],
 transform = T.AddMetaPaths(metapaths=metapaths, drop_orig_edge_types=True,
                            drop_unconnected_node_types=True)
 
-transformed_data = []  # 获取由元路径连接的数据
+transformed_data = []  
 for i in range(len(data)):
     temperal = transform(data[i])
     transformed_data.append(temperal)
@@ -119,5 +118,4 @@ with torch.no_grad():
 
 embedding_result = embedding_result[-1,:,:]
 embedding_df = pd.DataFrame(embedding_result.cpu().numpy())
-print("成功")
 embedding_df.to_csv('embedding_result_3.csv',index=False)
