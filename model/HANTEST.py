@@ -4,7 +4,7 @@ from typing import Dict, List, Union
 from torch.nn import Embedding
 import torch
 class HAN(nn.Module):
-    def __init__(self, in_channels:Union[int, Dict[str, int]], hidden_channels, out_channels):  #这里添加了一个数据
+    def __init__(self, in_channels:Union[int, Dict[str, int]], hidden_channels, out_channels):  
         super(HAN, self).__init__()
         # H, D = self.heads, self.out_channels // self.heads
         self.conv1 = HANConv(in_channels, hidden_channels, graph.metadata(), heads=4)
@@ -25,4 +25,4 @@ class HAN(nn.Module):
         output = torch.cat(x,y,z)
 
 
-        return output ,self.embedding.weight #这里要不要返回各种节点个数考虑
+        return output ,self.embedding.weight
